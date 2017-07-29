@@ -32,3 +32,8 @@ offset hex-value
 
 ...
 ```
+
+Result
+=======
+![arp_spoofing](http://imgur.com/a/7d0TQ)
+
