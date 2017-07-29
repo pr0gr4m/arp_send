@@ -8,13 +8,11 @@ SOURCES += main.c \
 	use_pcap.c \
 	parsing.c \
     use_socket.c \
-    arp.c \
     common.c \
-    eth.c
+    build.c
 
 HEADERS += common.h \
 	use_pcap.h \
 	parsing.h \
     use_socket.h \
-    arp.h \
-    eth.h
+    build.h

@@ -2,10 +2,11 @@
 
 /*
  * Prototype : int get_local_addr(pcap_arg *arg, char *dev)
- * Last Modified 2017/07/29
+ * Last Modified 2017/07/30
  * Written by pr0gr4m
  *
  * get local mac address and ip address
+ * and store to arg's member variable
  */
 int get_local_addr(pcap_arg *arg, char *dev)
 {
@@ -34,7 +35,7 @@ int get_local_addr(pcap_arg *arg, char *dev)
         return RET_ERR;
     }
 
-    strcpy(ifr.ifr_name, dev);
+    strncpy(ifr.ifr_name, dev, IFNAMSIZ - 1);
 
     // get mac address
     if (ioctl(sock, SIOCGIFHWADDR, &ifr) == -1)
