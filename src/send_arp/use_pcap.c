@@ -33,7 +33,7 @@ int init_handle(pcap_arg *arg, char *dev)
     arg->handle = pcap_open_live(dev, BUFSIZ, 1, 0, errbuf);
     if (arg->handle == NULL)
     {
-        pr_err("Couldn't open device %s: %s \n", "dum0", errbuf);
+        pr_err("Couldn't open device %s: %s \n", dev, errbuf);
         return RET_ERR;
     }
 
