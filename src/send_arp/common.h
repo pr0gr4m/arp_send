@@ -48,6 +48,7 @@ typedef struct _pcap_arg
 #define pr_out(arg...) print_msg(stdout, REP, arg)
 #define pr_out_n(arg...) print_msg_no_enter(stdout, REP, arg)
 
+// dump function for debug
 void dumpcode(u_char *buf, int len);
 
 #endif // COMMON_H

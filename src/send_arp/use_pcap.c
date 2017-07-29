@@ -80,67 +80,6 @@ int close_handle(pcap_arg *arg)
 }
 
 /*
- * Prototype : int print_packet_loop(pcap_arg *arg)
- * Last Modified 2017/07/18
- * Written by pr0gr4m
- *
- * capture next packets with handle iteratively
- * ethernet header default length : 14
- * ip header default length : hl * 4
- * tcp header default length : doff * 4
- */
-int print_packet_loop(pcap_arg *arg)
-{
-    struct pcap_pkthdr *header;
-    const u_char *frame, *packet, *segment, *payload;
-    int ret_next;
-    int tot_len, ip_hlen, tcp_doff;
-
-    while (1)
-    {
-        putchar('\n');
-        ret_next = pcap_next_ex(arg->handle, &header, &frame);
-
-        if (ret_next == 0)
-            continue;
-
-        if (ret_next != 1)
-            break;
-
-        if (frame == NULL)
-        {
-            pr_err("Don't grab the packet");
-        }
-
-        pr_out("* Next Packet Length : [%d]\n", header->len);
-        if (parse_ethernet(frame))
-        {
-            packet = frame + HEAD_ETH_LEN;
-            if (parse_ip(packet, &tot_len, &ip_hlen))
-            {
-                segment = packet + ip_hlen * 4;
-                if (parse_tcp(segment, &tcp_doff))
-                {
-                    if (tot_len + HEAD_ETH_LEN > 60 &&
-                            tot_len > ip_hlen * 4 + tcp_doff * 4)
-                    {
-                        // pass a packet which has no payload data.
-                        payload = segment + tcp_doff * 4;
-                        parse_data(payload, tot_len -
-                                   (ip_hlen * 4 + tcp_doff * 4));
-
-                    }
-                }
-            }
-        }
-
-        puts("======================================================================================");
-    }
-
-    return RET_SUC;
-}
-
-/*
  * Prototype : int send_arp_packet(pcap_arg *arg)
  * Last Modified 2017/07/29
  * Written by pr0gr4m
@@ -165,13 +104,34 @@ int send_arp_packet(pcap_arg *arg, struct ether_header *ehdr, struct arp_header 
 
 /*
  * Prototype : int recv_arp_packet(pcap_arg *arg)
- * Last Modified 2017/07/29
+ * Last Modified 2017/07/30
  * Written by pr0gr4m
  *
  * recv arp packet
  */
-int recv_arp_packet(pcap_arg *arg)
+int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
 {
+    struct pcap_pkthdr *header;
+    const u_char *frame, *packet;
+    int ret_next;
 
+    ret_next = pcap_next_ex(arg->handle, &header, &frame);
+
+    if (ret_next != 1)
+        return RET_ERR;
+
+    if (frame == NULL)
+    {
+        pr_err("Don't grab the packet");
+    }
+
+    pr_out("* Next Packet Length : [%d]\n", header->len);
+    if (parse_ethernet(frame))
+    {
+        packet = frame + ETH_HEADER_LEN;
+        parse_arp(packet, ahdr);
+    }
+
+    return RET_SUC;
 }
 
