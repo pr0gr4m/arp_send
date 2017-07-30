@@ -217,7 +217,7 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
 
     if (ret_next == 0)
     {
-        pr_err("pcap_next:ex: timeout");
+        pr_err("pcap_next_ex: timeout");
         return RET_ERR;
     }
 
