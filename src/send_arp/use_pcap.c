@@ -2,7 +2,7 @@
 
 /*
  * Prototype : int init_handle(pcap_arg *arg)
- * Last Modified 2017/07/12
+ * Last Modified 2017/07/30
  * Written by pr0gr4m
  *
  * open pcap handle and store to arg
