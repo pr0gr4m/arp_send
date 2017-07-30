@@ -30,7 +30,8 @@ int init_handle(pcap_arg *arg, char *dev)
     arg->net = 0;
     arg->mask = 0;
 
-    arg->handle = pcap_open_live(dev, BUFSIZ, 1, 0, errbuf);
+    // recv(read) timeout 1 sec
+    arg->handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuf);
     if (arg->handle == NULL)
     {
         pr_err("Couldn't open device %s: %s \n", dev, errbuf);
@@ -214,8 +215,17 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
 
     ret_next = pcap_next_ex(arg->handle, &header, &frame);
 
-    if (ret_next != 1)
+    if (ret_next == 0)
+    {
+        pr_err("pcap_next:ex: timeout");
         return RET_ERR;
+    }
+
+    if (ret_next != 1)
+    {
+        pr_err("pcap_next_ex: %s", pcap_geterr(arg->handle));
+        return RET_ERR;
+    }
 
     if (frame == NULL)
     {
