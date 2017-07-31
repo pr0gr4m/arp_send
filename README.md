@@ -35,5 +35,9 @@ offset hex-value
 
 Result
 =======
-![arp_spoofing](http://i.imgur.com/fxdm4yh.png)
 
+* When sender is in the same network (could find sender)
+![arp_success](http://i.imgur.com/HGSXizl.png)
+
+* When sender is not in the same network (couldn't find sender)
+![arp_fail](http://i.imgur.com/G3y2195.png)
