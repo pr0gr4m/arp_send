@@ -1,9 +1,7 @@
 #ifndef USE_PCAP_H
 #define USE_PCAP_H
 
-#define HEAD_ETH_LEN    14
-#define HEAD_IP_LEN     20
-#define HEAD_TCP_LEN    20
+#define RECV_ITER_N 5
 
 #include "common.h"
 #include "parsing.h"
