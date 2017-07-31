@@ -141,6 +141,7 @@ int send_arp_request(pcap_arg *arg, char *addr_s)
     memset(ahdr.tha, 0x00, HWADDR_LEN);
     inet_pton(AF_INET, addr_s, &addr);
     memcpy(ahdr.tpa, &addr, PTADDR_LEN);
+    memcpy(&(arg->sender_ip), &addr, sizeof(struct in_addr));
 
     if (send_arp_packet(arg, &ehdr, &ahdr))
     {
@@ -212,38 +213,56 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
     struct pcap_pkthdr *header;
     const u_char *frame, *packet;
     int ret_next;
+    int i;
 
-    ret_next = pcap_next_ex(arg->handle, &header, &frame);
-
-    if (ret_next == 0)
+    for (i = 0; i < RECV_ITER_N; i++)
     {
-        pr_err("pcap_next_ex: timeout");
-        return RET_ERR;
+        ret_next = pcap_next_ex(arg->handle, &header, &frame);
+
+        if (ret_next == 0)
+        {       // timeout
+            pr_err("pcap_next_ex: timeout");
+            continue;
+        }
+
+        if (ret_next != 1)
+        {       // error
+            pr_err("pcap_next_ex: %s", pcap_geterr(arg->handle));
+            return RET_ERR;
+        }
+
+        if (frame == NULL)
+        {
+            pr_err("Don't grab the packet");
+            continue;
+        }
+
+        if (parse_ethernet(frame))
+        {       // frame is arp
+            memset(ahdr, 0, sizeof(struct arp_header));
+            pr_out("recv packet:");
+            dumpcode(frame, header->len);
+            puts("\n");
+            packet = frame + ETH_HEADER_LEN;
+            parse_arp(packet, ahdr);
+            if (!memcmp(&(ahdr->spa), &(arg->sender_ip), sizeof(struct in_addr)))
+            {   // succeed to match sender
+                return RET_SUC;
+            }
+            else
+            {
+                pr_out("recv unwanted reply packet");
+                continue;
+            }
+        }
+        else
+        {       // frame is not arp
+            pr_err("recv: arp filter has problem");
+            return RET_ERR;
+        }
     }
 
-    if (ret_next != 1)
-    {
-        pr_err("pcap_next_ex: %s", pcap_geterr(arg->handle));
-        return RET_ERR;
-    }
-
-    if (frame == NULL)
-    {
-        pr_err("Don't grab the packet");
-    }
-
-    if (parse_ethernet(frame))
-    {
-        pr_out("recv packet:");
-        dumpcode(frame, header->len);
-        puts("\n");
-        packet = frame + ETH_HEADER_LEN;
-        parse_arp(packet, ahdr);
-        return RET_SUC;
-    }
-    else
-    {
-        return RET_ERR;
-    }
+    pr_err("recv: couldn't find sender");
+    return RET_ERR;
 }
 

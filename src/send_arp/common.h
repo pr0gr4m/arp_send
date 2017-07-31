@@ -29,6 +29,7 @@ typedef struct _pcap_arg
     bpf_u_int32 net;
     u_char local_mac[HWADDR_LEN];
     struct in_addr local_ip;
+    struct in_addr sender_ip;
 } pcap_arg;
 
 #define print_msg(io, msgtype, arg...) \
