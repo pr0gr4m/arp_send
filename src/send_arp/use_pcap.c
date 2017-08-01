@@ -95,7 +95,7 @@ int send_arp_packet(pcap_arg *arg, struct ether_header *ehdr, struct arp_header 
 
     pr_out("send packet:");
     dumpcode(frame, sizeof(frame));
-    puts("\n");
+    putchar('\n');
     if (pcap_sendpacket(arg->handle, frame, sizeof(frame)) == -1)
     {
         pr_err("pcap_sendpacket: %s", pcap_geterr(arg->handle));
@@ -242,7 +242,7 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
             memset(ahdr, 0, sizeof(struct arp_header));
             pr_out("recv packet:");
             dumpcode(frame, header->len);
-            puts("\n");
+            putchar('\n');
             packet = frame + ETH_HEADER_LEN;
             parse_arp(packet, ahdr);
             if (!memcmp(&(ahdr->spa), &(arg->sender_ip), sizeof(struct in_addr)))
@@ -252,6 +252,7 @@ int recv_arp_packet(pcap_arg *arg, struct arp_header *ahdr)
             else
             {
                 pr_out("recv unwanted reply packet");
+                puts("==========================================================\n");
                 continue;
             }
         }
